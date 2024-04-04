@@ -10,7 +10,7 @@ Each user can send coins or messages to another user, using BlockChat's cryptocu
 
 Communication between nodes in the blockchain is achieved with [Apache Kafka](https://kafka.apache.org/) broker.
 
-Different types of messages should be send to their corresponding topic:
+Different types of messages should be sent to their corresponding topic:
 
 - **connect**: Whenever a new node wants to connect to the system, he needs to send a message to the bootstrap node
 in order to receive an ID
