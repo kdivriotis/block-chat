@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BlockChat</title>
+
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='icons/favicon.ico') }}?v=3"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}?v=3"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="{{ url_for('static', filename='icons/favicon-32x32.png') }}?v=3"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="{{ url_for('static', filename='icons/favicon-16x16.png') }}?v=3"
+    />
+
+    <link
+      href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css') }}"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/block.css') }}"
+    />
+
+    <script defer src="{{ url_for('static', filename='css/fontawesome/js/brands.min.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='css/fontawesome/js/solid.min.js') }}""></script>
+    <script defer src="{{ url_for('static', filename='css/fontawesome/js/fontawesome.min.js') }}"></script>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav
+      class="navbar navbar-expand-lg fixed-top container-fluid px-2 py-1 navbar-dark bg-dark"
+    >
+      <a class="navbar-brand" href="/">BlockChat</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Info</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/transaction">Transaction</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/block">Block</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/blockchain">Blockchain</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <!-- Block Info -->
+    <div class="card">
+      <div class="d-flex align-items-center">
+        {% if previous_block_url is none %}
+        <a class="btn link-btn disabled" role="button" aria-disabled="true" href="#">
+        {% else %}
+        <a id="previousBlockLink" class="btn link-btn" role="button" href="{{ previous_block_url }}">
+        {% endif %}
+          <i class="fa-solid fa-chevron-left"></i>
+        </a>
+        <h5 class="card-header flex-grow-1">{{ block_title }} Information</h5>
+        {% if next_block_url is none %}
+        <a class="btn link-btn disabled" role="button" aria-disabled="true" href="#">
+        {% else %}
+        <a id="nextBlockLink" class="btn link-btn" role="button" href="{{ next_block_url }}">
+        {% endif %}
+          <i class="fa-solid fa-chevron-right"></i>
+        </a>
+      </div>
+      <div class="card-body row">
+        <div class="col-12 col-lg-6">
+          <p class="card-text"><strong>Index:</strong> {{ block["index"] }}</p>
+          <p class="card-text">
+            <strong>Timestamp:</strong> {{ block["timestamp"] }}
+          </p>
+          <p class="card-text">
+            <strong>Validator:</strong> {{ block["validator"] }}
+          </p>
+        </div>
+        <div class="col-12 col-lg-6">
+          <p class="card-text">
+            <strong>Previous Hash:</strong> {{ block["previous_hash"] }}
+          </p>
+          <p class="card-text">
+            <strong>Current Hash:</strong> {{ block["current_hash"] }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transactions -->
+    {% if block["transactions"]|length > 0 %}
+      {% if block["transactions"]|length > 1 %}
+      <h3 class="my-4">{{ block["transactions"]|length }} Transactions</h3>
+      {% else %}
+      <h3 class="my-4">1 Transaction</h3>
+      {% endif %}
+    <ul>
+      {% for transaction in block["transactions"] %}
+      <li class="card mt-2">
+        <h5 class="card-header">Transaction {{ transaction["id"] }}</h5>
+        <div class="card-body row">
+          <p class="card-text col-6"><strong>Sender ID:</strong> {{ transaction["sender_address"] }}</p>
+          <p class="card-text col-6"><strong>Recipient ID:</strong> {{ transaction["recipient_address"] }}</p>
+          <p class="card-text col-6"><strong>Type:</strong> {{ transaction["type_of_transaction"] }}</p>
+          {% if transaction["type_of_transaction"] == "Message" %}
+          <p class="card-text col-6"><strong>Message:</strong> {{ transaction["message"] }}</p>
+          {% else %}
+          <p class="card-text col-6"><strong>Amount:</strong> {{ transaction["amount"] }} BCC</p>
+          {% endif %}
+          <p class="card-text col-4"><strong>Nonce:</strong> {{ transaction["nonce"] }}</p>
+          <p class="card-text col-8"><strong>Signature:</strong> {{ transaction["signature"] }}</p>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+
+    {% else %}
+    <h3 class="my-4">No transactions in this block</h3>
+    {% endif %}
+
+    <script
+      src="{{ url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"
+      async
+    ></script>
+    <script type="text/javascript">
+      const tooltipTriggerList = document.querySelectorAll(
+        '[data-bs-toggle="tooltip"]'
+      );
+      const tooltipList = [...tooltipTriggerList].map(
+        (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
+      );
+    </script>
+    <script type="module" src="{{ url_for('static', filename='js/block.js') }}"></script>
+  </body>
+</html>

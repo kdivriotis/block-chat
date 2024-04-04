@@ -1,0 +1,21 @@
+:root {
+  --main-color: #dee2e6;
+  --main-color-hover: #ffffff;
+}
+
+.chain-icon {
+  color: var(--main-color);
+  transform: rotate(-45deg);
+}
+
+.block-link {
+  color: var(--main-color);
+  text-decoration: underline;
+  transition: all 0.3s ease-in-out;
+  transform-origin: left;
+}
+
+.block-link:hover {
+  color: var(--main-color-hover);
+  transform: scale(1.05);
+}

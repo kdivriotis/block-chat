@@ -1,0 +1,28 @@
+:root {
+  --button-color: #dee2e6;
+  --button-bg-color: #212529;
+  --button-disabled-color: gray;
+}
+
+.link-btn {
+  padding: 8px;
+  background-color: var(--button-bg-color);
+  color: var(--button-color);
+  border: 1px solid var(--button-color);
+}
+
+.link-btn:hover,
+.link-btn:focus {
+  color: var(--button-bg-color);
+  background-color: var(--button-color);
+  opacity: 0.8;
+}
+
+.link-btn.disabled,
+.link-btn.disabled:hover,
+.link-btn.disabled:focus {
+  border: 1px solid var(--button-color);
+  color: var(--button-color);
+  background-color: var(--button-disabled-color);
+  cursor: not-allowed;
+}

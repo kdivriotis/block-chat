@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BlockChat</title>
+
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='icons/favicon.ico') }}?v=3"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}?v=3"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="{{ url_for('static', filename='icons/favicon-32x32.png') }}?v=3"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="{{ url_for('static', filename='icons/favicon-16x16.png') }}?v=3"
+    />
+
+    <link
+      href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css') }}"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/info.css') }}"
+    />
+
+    <script defer src="css/fontawesome/js/brands.min.js"></script>
+    <script defer src="css/fontawesome/js/solid.min.js"></script>
+    <script defer src="css/fontawesome/js/fontawesome.min.js"></script>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav
+      class="navbar navbar-expand-lg fixed-top container-fluid px-2 py-1 navbar-dark bg-dark"
+    >
+      <a class="navbar-brand" href="/">BlockChat</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Info</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/transaction">Transaction</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/block">Block</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/blockchain">Blockchain</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <!-- General Info -->
+    <div class="card">
+      <h5 class="card-header">General Information</h5>
+      <div class="card-body row">
+        <div class="col-8 col-lg-6">
+          <h5 class="card-title">Node Info</h5>
+          <p class="card-text"><strong>ID:</strong> {{ node["id"] }}</p>
+          <p class="card-text">
+            <strong>Public Key:</strong> {{ node["public_key"] }}
+          </p>
+          <p class="card-text">
+            <strong>Coins:</strong> {{ node["coins"] }} BCC
+          </p>
+          <p class="card-text">
+            <strong>Stake:</strong> {{ node["stake"] }} BCC
+          </p>
+          <p class="card-text">
+            <strong>Available Coins:</strong> {{ node["coins"] - node["stake"]
+            }} BCC
+          </p>
+        </div>
+        <div class="col-4 col-lg-6">
+          <h5 class="card-title">Connection Info</h5>
+          <p class="card-text"><strong>Kafka Broker:</strong> {{ broker }}</p>
+          <p class="card-text">
+            <strong>Connected Nodes:</strong> {{ connected_nodes }} / {{
+            total_nodes }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connected Nodes' Info -->
+    {% if nodes|length >= 0 %}
+    <h3 class="my-4">Connected Nodes</h3>
+    <table
+      class="table table-striped align-middle w-100 text-wrap text-break node-table"
+    >
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Public Key</th>
+          <th scope="col">Coins</th>
+          <th scope="col">Stake</th>
+          <th scope="col">Available Coins</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">{{ node["id"] }}</th>
+          <td>{{ node["public_key"] }}</td>
+          <td>{{ node["coins"] }} BCC</td>
+          <td>{{ node["stake"] }} BCC</td>
+          <td>{{ node["coins"] - node["stake"] }} BCC</td>
+        </tr>
+        {% for connected_node in nodes %}
+        <tr>
+          <th scope="row">{{ connected_node["id"] }}</th>
+          <td>{{ connected_node["public_key"] }}</td>
+          <td>{{ connected_node["coins"] }} BCC</td>
+          <td>{{ connected_node["stake"] }} BCC</td>
+          <td>{{ connected_node["coins"] - connected_node["stake"] }} BCC</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <h3 class="my-4">No connected nodes</h3>
+    {% endif %}
+
+    <script
+      src="{{ url_for('static', filename='js/bootstrap/bootstrap.min.js') }}"
+      async
+    ></script>
+  </body>
+</html>
