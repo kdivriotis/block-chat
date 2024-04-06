@@ -375,6 +375,7 @@ class Node:
 
         If the chain is empty, it will set the block to None.
         """
+        self._temp_state = copy.deepcopy(self._nodes)
         chain_length = self._blockchain.get_chain_length()
         if chain_length == 0:
             self._current_block = None
@@ -384,7 +385,6 @@ class Node:
         self._current_block: Block = Block(
             index=chain_length, previous_hash=previous_hash
         )
-        self._temp_state = copy.deepcopy(self._nodes)
 
         # Use transactions from the transaction queue
         while len(self._transaction_queue) > 0:
@@ -615,8 +615,8 @@ class Node:
         """
         self._nodes = nodes
         self._validate_blockchain(chain)
-        self._initialize_block()
         self._initialization_ok = True
+        self._initialize_block()
 
     def _receive_transaction(self, transaction: Transaction):
         """
