@@ -87,6 +87,9 @@ class Node:
         self._temp_state: List[NodeInfo] = []
         self._transaction_queue: List[Transaction] = []
 
+        # Initialize mutex lock
+        self._mutex = threading.Lock()
+
         # Get Kafka broker's info (IP & port)
         broker_ip = os.getenv("BROKER_IP")
         broker_port = os.getenv("BROKER_PORT")
@@ -153,6 +156,8 @@ class Node:
         self._sign_transaction(transaction)
         self._nonce += 1
 
+        self._mutex.acquire()
+
         # If block is full (waiting for validator's block), add to transaction queue
         if self._validator is not None:
             self._transaction_queue.append(transaction)
@@ -165,6 +170,7 @@ class Node:
         self._send_message(topic="transaction", message=payload)
 
         self._add_transaction_to_block(transaction)
+        self._mutex.release()
 
         return True
 
@@ -598,11 +604,14 @@ class Node:
         Keyword arguments:
         - id -- Unique ID assigned from bootstrap, encrypted with the node's public key
         """
+        self._mutex.acquire()
         decrypted_id = decrypt_message(id, self._wallet["private_key"])
         try:
             self._id = int(decrypted_id)
             print(f"Received ID {decrypted_id}")
+            self._mutex.release()
         except ValueError:
+            self._mutex.release()
             exit(-1)
 
     def _receive_initialization_message(self, nodes: List[NodeInfo], chain: Blockchain):
@@ -613,10 +622,12 @@ class Node:
         - nodes -- List of all nodes that have been connected to bootstrap
         - chain -- Current state of the blockchain
         """
+        self._mutex.acquire()
         self._nodes = nodes
         self._validate_blockchain(chain)
         self._initialization_ok = True
         self._initialize_block()
+        self._mutex.release()
 
     def _receive_transaction(self, transaction: Transaction):
         """
@@ -627,6 +638,7 @@ class Node:
         Keyword arguments:
         - transaction -- The transaction that was received from the broker
         """
+        self._mutex.acquire()
         # If block is full (waiting for validator's block), add to transaction queue
         if self._validator is not None:
             self._transaction_queue.append(transaction)
@@ -634,6 +646,7 @@ class Node:
         if not self._validate_transaction(transaction):
             return
         self._add_transaction_to_block(transaction)
+        self._mutex.release()
 
     def _receive_block(self, block: Block):
         """
@@ -644,6 +657,7 @@ class Node:
         Keyword arguments:
         - block -- The block that was received from the broker
         """
+        self._mutex.acquire()
         # No block is expected to be received
         if self._validator is None:
             return
@@ -651,6 +665,7 @@ class Node:
         if not self._validate_block(block, self._validator):
             return
         self._commit_block()
+        self._mutex.release()
 
     """
     Communication related methods
