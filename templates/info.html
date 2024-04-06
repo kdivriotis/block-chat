@@ -129,13 +129,6 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <th scope="row">{{ node["id"] }}</th>
-          <td>{{ node["public_key"] }}</td>
-          <td>{{ node["coins"] }} BCC</td>
-          <td>{{ node["stake"] }} BCC</td>
-          <td>{{ node["coins"] - node["stake"] }} BCC</td>
-        </tr>
         {% for connected_node in nodes %}
         <tr>
           <th scope="row">{{ connected_node["id"] }}</th>
