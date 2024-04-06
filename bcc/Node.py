@@ -531,9 +531,10 @@ class Node:
                 return False
 
         # Move transactions that don't exist on the received block to the transaction queue
-        for transaction in reversed(self._current_block.get_transactions()):
-            if not block.has_transaction(transaction):
-                self._transaction_queue.insert(0, transaction)
+        if self._current_block is not None:
+            for transaction in reversed(self._current_block.get_transactions()):
+                if not block.has_transaction(transaction):
+                    self._transaction_queue.insert(0, transaction)
 
         # Remove transactions that exist on the received block from the transaction queue
         self._transaction_queue = [
@@ -623,7 +624,7 @@ class Node:
         - chain -- Current state of the blockchain
         """
         self._mutex.acquire()
-        self._nodes = nodes
+        self._temp_state = nodes
         self._validate_blockchain(chain)
         self._initialization_ok = True
         self._initialize_block()
