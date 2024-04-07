@@ -1,7 +1,9 @@
 import os
 import signal
 import argparse
+import threading
 from dotenv import load_dotenv
+
 from flask import Flask, render_template, redirect, url_for, request, jsonify
 
 from bcc.Node import Node
@@ -220,6 +222,17 @@ def blockchain():
 
     return render_template("blockchain.html", chain=chain)
 
+
+""" Run tests """
+
+# Wait until node has been initialized
+thread = threading.Thread(target=node.wait_until_initialized)
+thread.start()
+thread.join()
+
+# Start tests
+print("All nodes initialized, starting tests")
+# TODO
 
 """ Start the Flask application """
 
