@@ -280,6 +280,7 @@ class Node:
         the node has successfully been initialized before starting any
         transactions.
         """
+        print("Waiting until all nodes are initialized..,")
         self._initialization_mutex.acquire()
         self._initialization_mutex.release()
 
