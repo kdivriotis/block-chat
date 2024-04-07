@@ -76,7 +76,6 @@ class Node:
         self._id: int = None
         self._nonce: int = 0
         self._validator: Optional[str] = None
-        self._initialization_ok: bool = False
 
         # Initialize the empty blockchain & list of nodes
         self._blockchain: Blockchain = Blockchain()
@@ -89,6 +88,8 @@ class Node:
 
         # Initialize mutex lock
         self._mutex = threading.Lock()
+        self._initialization_mutex = threading.Lock()
+        self._initialization_mutex.acquire()
 
         # Get Kafka broker's info (IP & port)
         broker_ip = os.getenv("BROKER_IP")
@@ -272,6 +273,15 @@ class Node:
             block_dict["transactions"] = [transaction_to_str(t) for t in transactions]
 
         return blockchain_dict["chain"]
+
+    def wait_until_initialized(self):
+        """
+        Dummy method, only used to force client(s) to wait until
+        the node has successfully been initialized before starting any
+        transactions.
+        """
+        self._initialization_mutex.acquire()
+        self._initialization_mutex.release()
 
     """
     Transaction related methods
@@ -626,7 +636,7 @@ class Node:
         self._mutex.acquire()
         self._temp_state = nodes
         self._validate_blockchain(chain)
-        self._initialization_ok = True
+        self._initialization_mutex.release()
         self._initialize_block()
         self._mutex.release()
 

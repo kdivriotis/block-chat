@@ -195,7 +195,7 @@ class Bootstrap(Node):
         # Send the init message after all nodes have been inserted
         payload = {"nodes": self._nodes, "chain": self._blockchain.to_dict()}
         self._send_message(topic="init", message=payload)
-        self._initialization_ok = True
+        self._initialization_mutex.release()
 
     """
     Communication related methods
