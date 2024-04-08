@@ -39,8 +39,10 @@ Configure the application's parameters (_.env_ file):
 
 ### Setup Apache Kafka with Zookeeper
 
-Download Apache Kafka (3.3.1) from the [official website](https://downloads.apache.org/kafka/3.3.1/kafka_2.13-3.3.1.tgz), or by executing the command `wget https://dlcdn.apache.org/kafka/3.3.1/kafka_2.13-3.3.1.tgz`.
+Download Apache Kafka (3.5.2) from the [official website](https://downloads.apache.org/kafka/3.5.2/kafka_2.13-3.5.2.tgz), or by executing the command `wget https://dlcdn.apache.org/kafka/3.5.2/kafka_2.13-3.5.2.tgz`.
 Full installation guide for Ubuntu 22.04 can be found [here](https://tecadmin.net/how-to-install-apache-kafka-on-ubuntu-22-04/).
+
+NOTE: Be sure to replace 3.2.0 with 3.5.2 in the above guide, since version 3.2.0 is deprecated.
 
 Start the Zookeeper and then the Apache Kafka server on the local machine. If the instructions on the tutorial above were followed, the server should be running on _localhost:9092_.
 
