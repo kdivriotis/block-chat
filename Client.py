@@ -1,9 +1,10 @@
 import os
+import time
 import signal
 import argparse
 import threading
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from flask import Flask, render_template, redirect, url_for, request, jsonify
 
 from bcc.Node import Node
@@ -257,9 +258,13 @@ if test_case is not None:
     id_public_key_dict = {n["id"]: n["public_key"] for n in other_nodes}
 
     file_path: str = os.path.join(test_case_dir, f"trans{id}.txt")
+    line_cnt: int = 0
+    processed_transactions: int = 0
+
     with open(file_path, "r") as file:
-        line_cnt: int = 1
+        start_time = time.time()
         for line in file:
+            line_cnt += 1
             # Read the line and keep the required data (ID & Message)
             splitted_line = line.strip().split(" ", 1)
             if len(splitted_line) == 2:
@@ -276,6 +281,7 @@ if test_case is not None:
                         amount=0,
                         message=message,
                     )
+                    processed_transactions += 1
 
                     if result is not None and not result:
                         print(f"Cannot execute transaction on line {line_cnt}")
@@ -288,7 +294,29 @@ if test_case is not None:
 
             else:
                 print(f"Invalid format on line {line_cnt}")
-            line_cnt += 1
+
+    # Wait until node has no more transactions in queue
+    thread = threading.Thread(target=node.wait_until_queue_is_empty)
+    thread.start()
+    thread.join()
+
+    # Calculate total execution time
+    end_time = time.time()
+    execution_time = end_time - start_time
+
+    # Find how many transactions exist in the blockchain
+    chain = node.get_blockchain()
+    transactions_in_chain: int = 0
+    for block in chain:
+        transactions_in_chain += len(block["transactions"])
+
+    print(
+        f"{processed_transactions} transactions processed in {execution_time:.6f} seconds"
+    )
+    print(f"Total {transactions_in_chain} have been added in the blockchain")
+
+    print(len(node._transaction_queue))
+    print(node._validator)
 
 
 """ Start the Flask application """
