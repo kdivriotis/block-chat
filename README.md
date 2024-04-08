@@ -66,3 +66,17 @@ Make sure to run each node on a different port if they are running as processes 
 
 All nodes provide a web interface that is accessible on `localhost:<port>`
 
+### Test cases
+
+The Client can also be started to run a test case with predefined transactions, by using the `-t <test case>` argument like:
+
+`python Client.py -b -t <test case>`
+
+Test case files should be added under _./tests_ directory, e.g. _./tests/(test case)_ .  
+Inside this directory, a _.txt_ file can be defined with transactions for each node,
+named _trans(node ID).txt_.
+
+The text file is expected to contain one line per transaction, in the following format:  
+id<recipient ID> message
+
+_NOTE:_ Only message transactions are supported
