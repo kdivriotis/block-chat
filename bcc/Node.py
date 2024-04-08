@@ -354,7 +354,7 @@ class Node:
             return False
 
         # Check whether the transaction already exists in the blockchain or in the current block
-        if self._blockchain.has_transaction(transaction):
+        if self._blockchain.has_transaction(transaction) or self._current_block.has_transaction(transaction):
             return False
 
         # Find sender & recipient's info inside list of nodes
