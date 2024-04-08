@@ -321,4 +321,4 @@ if test_case is not None:
 
 """ Start the Flask application """
 
-app.run(port=port)
+app.run(host="0.0.0.0", port=port)
