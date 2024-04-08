@@ -44,7 +44,8 @@ class Node:
     - get_info -- Get node's info, along with information for all connected nodes.
     - create_transaction -- Send a transaction to the blockchain
     - get_block -- Get info of block with given index
-    - get_blockchain -- Get the entire blockchain in ascending order.
+    - get_blockchain -- Get the entire blockchain in ascending order
+    - wait_until_initialized -- Returns only after initialization step is completed
     """
 
     def __init__(self):
@@ -132,12 +133,14 @@ class Node:
         type_of_transaction: TransactionType,
         amount: float,
         message: str,
-    ) -> bool:
+    ) -> Optional[bool]:
         """
         Creates and sends a new transaction with the given parameters, and
         increments the nonce counter by 1.
 
-        Returns True or False depending on the transaction's validity
+        If the block is full, returns None.
+
+        Otherwise returns True or False depending on the transaction's validity.
 
         Keyword arguments:
         - recipient_address -- The public key of the recipient of this transaction
@@ -160,10 +163,13 @@ class Node:
         self._mutex.acquire()
 
         # If block is full (waiting for validator's block), add to transaction queue
-        if self._validator is not None:
+        if self._validator is not None or self._current_block.is_full():
             self._transaction_queue.append(transaction)
+            self._mutex.release()
+            return None
 
         if not self._validate_transaction(transaction):
+            self._mutex.release()
             return False
 
         # Send the transaction to the broker (transaction topic)
@@ -280,9 +286,10 @@ class Node:
         the node has successfully been initialized before starting any
         transactions.
         """
-        print("Waiting until all nodes are initialized..,")
+        print("Waiting until all nodes are initialized...")
         self._initialization_mutex.acquire()
         self._initialization_mutex.release()
+        print("All nodes have been initialized.")
 
     """
     Transaction related methods
@@ -405,7 +412,7 @@ class Node:
 
         # Use transactions from the transaction queue
         while len(self._transaction_queue) > 0:
-            if self._validate_block is not None:
+            if self._validate_block is not None or self._current_block.is_full():
                 break
 
             transaction: Transaction = self._transaction_queue.pop(0)
@@ -518,9 +525,6 @@ class Node:
         - block -- The block to be validated
         - validator -- The expected validator (or None if unknown)
         """
-        # Keep the previous state in case a rollback is required
-        prev_state: List[NodeInfo] = copy.deepcopy(self._temp_state)
-
         # Incorrect validator
         if validator is not None and validator != block.get_validator():
             return False
@@ -537,8 +541,6 @@ class Node:
         for transaction in block.get_transactions():
             # Invalid transaction
             if not self._validate_transaction(transaction):
-                # Rollback changes
-                self._temp_state = copy.deepcopy(prev_state)
                 return False
 
         # Move transactions that don't exist on the received block to the transaction queue
@@ -652,10 +654,13 @@ class Node:
         """
         self._mutex.acquire()
         # If block is full (waiting for validator's block), add to transaction queue
-        if self._validator is not None:
+        if self._validator is not None or self._current_block.is_full():
             self._transaction_queue.append(transaction)
+            self._mutex.release()
+            return
 
         if not self._validate_transaction(transaction):
+            self._mutex.release()
             return
         self._add_transaction_to_block(transaction)
         self._mutex.release()
@@ -670,11 +675,20 @@ class Node:
         - block -- The block that was received from the broker
         """
         self._mutex.acquire()
+
+        # Keep the previous state in case a rollback is required
+        prev_state: List[NodeInfo] = copy.deepcopy(self._temp_state)
+        self._temp_state = copy.deepcopy(self._nodes)
+
         # No block is expected to be received
         if self._validator is None:
+            self._mutex.release()
+            # Rollback changes
+            self._temp_state = copy.deepcopy(prev_state)
             return
 
         if not self._validate_block(block, self._validator):
+            self._mutex.release()
             return
         self._commit_block()
         self._mutex.release()
