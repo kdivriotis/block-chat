@@ -16,11 +16,15 @@ class Bootstrap(Node):
     """
     Class describing the Bootstrap node of the BlockChat blockchain.
 
+    Extends Node class.
+
     Public methods:
     - get_info -- Get node's info, along with information for all connected nodes.
     - create_transaction -- Send a transaction to the blockchain
     - get_block -- Get info of block with given index
     - get_blockchain -- Get the entire blockchain in ascending order.
+    - wait_until_initialized -- Returns only after initialization step is completed
+    - wait_until_queue_is_empty -- Returns only after all queued transactions have been finished
     """
 
     def __init__(self):
