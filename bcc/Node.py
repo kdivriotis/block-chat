@@ -1,5 +1,5 @@
 import os
-from dotenv import load_dotenv
+import time
 from datetime import datetime
 import json
 import threading
@@ -7,6 +7,7 @@ import copy
 import random
 from typing import TypedDict, Optional, List
 
+from dotenv import load_dotenv
 from kafka import KafkaProducer, KafkaConsumer
 
 from bcc.Blockchain import Blockchain, BlockchainDict
@@ -46,6 +47,7 @@ class Node:
     - get_block -- Get info of block with given index
     - get_blockchain -- Get the entire blockchain in ascending order
     - wait_until_initialized -- Returns only after initialization step is completed
+    - wait_until_queue_is_empty -- Returns only after all queued transactions have been finished
     """
 
     def __init__(self):
@@ -290,6 +292,15 @@ class Node:
         self._initialization_mutex.acquire()
         self._initialization_mutex.release()
         print("All nodes have been initialized.")
+
+    def wait_until_queue_is_empty(self):
+        """
+        Dummy method, only used to force client to wait until all
+        queued transactions have been finished
+        """
+        while len(self._transaction_queue) > 0:
+            time.sleep(0.1)
+
 
     """
     Transaction related methods
