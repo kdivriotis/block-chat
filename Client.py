@@ -46,12 +46,31 @@ parser.add_argument(
     default=DEFAULT_PORT,
     help=f"HTTP port the client listens to ({DEFAULT_PORT}-65535)",
 )
+# Select Test case
+parser.add_argument(
+    "-t",
+    "--test",
+    type=str,
+    required=False,
+    default=None,
+    help=f"Test case to be executed (./tests/<test>)",
+)
 args = parser.parse_args()
 is_bootstrap: bool = args.bootstrap
+
 port: int = args.port
 if port < DEFAULT_PORT or port > 65535:
     parser.print_help()
     exit(-1)
+
+test_case: str | None = args.test
+if test_case is not None:
+    test_case_dir = os.path.join("tests", test_case)
+    if not os.path.isdir(test_case_dir):
+        print(f"Directory {test_case_dir} does not exist")
+        parser.print_help()
+        exit(-1)
+
 
 node = Bootstrap() if is_bootstrap else Node()
 signal.signal(signal.SIGINT, stop_node)
@@ -225,14 +244,52 @@ def blockchain():
 
 """ Run tests """
 
-# Wait until node has been initialized
-thread = threading.Thread(target=node.wait_until_initialized)
-thread.start()
-thread.join()
+if test_case is not None:
+    # Wait until node has been initialized
+    thread = threading.Thread(target=node.wait_until_initialized)
+    thread.start()
+    thread.join()
 
-# Start tests
-print("All nodes initialized, starting tests")
-# TODO
+    # Start tests
+    node_info = node.get_info()
+    id: int = node_info["node"]["id"]
+    other_nodes = node_info["nodes"]
+    id_public_key_dict = {n["id"]: n["public_key"] for n in other_nodes}
+
+    file_path: str = os.path.join(test_case_dir, f"trans{id}.txt")
+    with open(file_path, "r") as file:
+        line_cnt: int = 1
+        for line in file:
+            # Read the line and keep the required data (ID & Message)
+            splitted_line = line.strip().split(" ", 1)
+            if len(splitted_line) == 2:
+                try:
+                    # Parse the ID & translate it to public key
+                    recipient_id = int(splitted_line[0][2:])
+                    message = splitted_line[1]
+                    recipient_public_key = id_public_key_dict[recipient_id]
+
+                    # Create the transaction
+                    result: bool | None = node.create_transaction(
+                        recipient_address=recipient_public_key,
+                        type_of_transaction=TransactionType.MESSAGE,
+                        amount=0,
+                        message=message,
+                    )
+
+                    if result is not None and not result:
+                        print(f"Cannot execute transaction on line {line_cnt}")
+                except KeyError:
+                    print(f"Unknown ID {recipient_id}")
+                    continue
+                except ValueError:
+                    print(f"Invalid ID {splitted_line[0][2:]}")
+                    continue
+
+            else:
+                print(f"Invalid format on line {line_cnt}")
+            line_cnt += 1
+
 
 """ Start the Flask application """
 
