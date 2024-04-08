@@ -412,7 +412,7 @@ class Node:
 
         # Use transactions from the transaction queue
         while len(self._transaction_queue) > 0:
-            if self._validate_block is not None or self._current_block.is_full():
+            if self._validator is not None or self._current_block.is_full():
                 break
 
             transaction: Transaction = self._transaction_queue.pop(0)
