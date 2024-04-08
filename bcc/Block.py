@@ -24,6 +24,7 @@ class Block:
     - add_transaction -- Add a transaction to the block
     - calculate_hash -- Get the block's hash
     - is_genesis -- Check if this is the genesis block
+    - is_full -- Check if the block is full
     - has_transaction -- Check if a transaction exists in the block
     - to_dict -- Transform the block to a dictionary
 
@@ -111,6 +112,12 @@ class Block:
             return False
 
         return True
+
+    def is_full(self) -> bool:
+        """
+        Returns True if the block is full (max transactions capacity reached)
+        """
+        return len(self._transactions) >= self._BLOCK_CAPACITY
 
     def has_transaction(self, transaction: Transaction) -> bool:
         """
