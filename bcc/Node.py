@@ -301,7 +301,6 @@ class Node:
         while len(self._transaction_queue) > 0:
             time.sleep(0.1)
 
-
     """
     Transaction related methods
     """
@@ -354,7 +353,11 @@ class Node:
             return False
 
         # Check whether the transaction already exists in the blockchain or in the current block
-        if self._blockchain.has_transaction(transaction) or self._current_block.has_transaction(transaction):
+        if self._blockchain.has_transaction(transaction) or (
+            self._current_block is not None
+            and self._current_block.has_transaction(transaction)
+            and self._validator is None
+        ):
             return False
 
         # Find sender & recipient's info inside list of nodes
@@ -429,10 +432,8 @@ class Node:
             transaction: Transaction = self._transaction_queue.pop(0)
             if self._validate_transaction(transaction):
                 # Send the transaction to the broker (transaction topic)
-                # (if this is the sender of the transaction)
-                if transaction.get_sender_address() == self._wallet["public_key"]:
-                    payload = {"transaction": transaction.to_dict()}
-                    self._send_message(topic="transaction", message=payload)
+                payload = {"transaction": transaction.to_dict()}
+                self._send_message(topic="transaction", message=payload)
 
                 # Add it to the current block
                 self._add_transaction_to_block(transaction)
