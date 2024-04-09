@@ -10,6 +10,7 @@ from typing import TypedDict, Optional, List
 from dotenv import load_dotenv
 from kafka import KafkaProducer, KafkaConsumer
 
+from bcc.utils import initialize_broker, CustomEncoder
 from bcc.Blockchain import Blockchain, BlockchainDict
 from bcc.Block import Block, BlockDict
 from bcc.Transaction import Transaction, TransactionType
@@ -20,7 +21,6 @@ from bcc.crypto import (
     sign_message,
     verify_message,
 )
-from bcc.utils import CustomEncoder
 
 TOPICS = [
     {"name": "connect", "partitions": 1, "retention": 60 * 1000},
@@ -58,15 +58,7 @@ class Node:
         the bootstrap node, in order to receive a unique (incremental) ID.
         """
         self._initialize_config()
-
-        # Start the listener thread
-        self._listener = threading.Thread(target=self._receive_message)
-        self._listener._stop_event = threading.Event()
-        self._listener.start()
-
-        # Send the public key to the broker (connect topic)
-        payload = {"type": "request", "public_key": self._wallet["public_key"]}
-        self._send_message(topic="connect", message=payload)
+        self._send_initialization_message()
 
     def _initialize_config(self):
         """
@@ -98,6 +90,27 @@ class Node:
         broker_ip = os.getenv("BROKER_IP")
         broker_port = os.getenv("BROKER_PORT")
         self._kafka_broker = f"{broker_ip}:{broker_port}"
+
+        # Create the topics needed for Kafka broker
+        try:
+            initialize_broker(server=self._kafka_broker, topics=TOPICS)
+        except Exception:
+            print("Something went wrong while initializing Kafka")
+            exit(-1)
+
+        # Start the listener thread
+        self._listener = threading.Thread(target=self._receive_message)
+        self._listener._stop_event = threading.Event()
+        self._listener.start()
+
+    def _send_initialization_message(self):
+        """
+        Send connection message to request ID from bootstrap
+        node.
+        """
+        # Send the public key to the broker (connect topic)
+        payload = {"type": "request", "public_key": self._wallet["public_key"]}
+        self._send_message(topic="connect", message=payload)
 
     """
     Public API methods (for web view, CLI etc.)
@@ -755,6 +768,9 @@ class Node:
                     and value["public_key"] == self._wallet["public_key"]
                 ):
                     self._receive_id(id=value["id"])
+                # Bootstrap node just connected - resend request
+                elif value["type"] == "bootstrap":
+                    self._send_initialization_message()
             # Initialization message received from bootstrap
             elif topic == "init":
                 nodes: List[NodeInfo] = value["nodes"]

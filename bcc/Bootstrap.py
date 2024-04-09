@@ -5,7 +5,6 @@ import copy
 
 from kafka import KafkaConsumer
 
-from bcc.utils import initialize_broker
 from bcc.Node import Node, NodeInfo, TOPICS
 from bcc.crypto import encrypt_message
 from bcc.Block import Block
@@ -27,17 +26,6 @@ class Bootstrap(Node):
     - wait_until_queue_is_empty -- Returns only after all queued transactions have been finished
     """
 
-    def __init__(self):
-        """
-        Initializes the bootstrap node and the Kafka broker
-        """
-        self._initialize_config()
-
-        # Start the listener thread
-        self._listener = threading.Thread(target=self._receive_message)
-        self._listener._stop_event = threading.Event()
-        self._listener.start()
-
     def _initialize_config(self):
         """
         Initializes the node and info about connection to the broker.
@@ -45,11 +33,11 @@ class Bootstrap(Node):
         Also creates the needed topics for Kafka and the Genesis block.
         """
         super()._initialize_config()
-        self._id: int = 0
-
-        self._initial_coins = float(os.getenv("INITIAL_COINS"))
 
         # Add info to list of nodes
+        self._id: int = 0
+        self._initial_coins = float(os.getenv("INITIAL_COINS"))
+
         info: NodeInfo = {
             "id": 0,
             "public_key": self._wallet["public_key"],
@@ -58,16 +46,18 @@ class Bootstrap(Node):
         }
         self._nodes.append(info)
 
-        # Create the topics needed for Kafka broker
-        try:
-            initialize_broker(server=self._kafka_broker, topics=TOPICS)
-        except Exception:
-            print("Something went wrong while initializing Kafka")
-            exit(-1)
-
         # Create the genesis block and add it to the blockchain
         self._initialize_block()
         self._commit_block()
+
+    def _send_initialization_message(self):
+        """
+        Send connection message to notify all nodes that
+        bootstrap node is connected.
+        """
+        # Send the public key to the broker (connect topic)
+        payload = {"type": "bootstrap", "public_key": self._wallet["public_key"]}
+        self._send_message(topic="connect", message=payload)
 
     """
     Block related methods
