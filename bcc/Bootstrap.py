@@ -5,6 +5,7 @@ import copy
 
 from kafka import KafkaConsumer
 
+from bcc.utils import initialize_broker
 from bcc.Node import Node, NodeInfo, TOPICS
 from bcc.crypto import encrypt_message
 from bcc.Block import Block
@@ -45,6 +46,13 @@ class Bootstrap(Node):
             "stake": self._initial_stake,
         }
         self._nodes.append(info)
+
+        # Create the topics needed for Kafka broker
+        try:
+            initialize_broker(server=self._kafka_broker, topics=TOPICS)
+        except Exception:
+            print("Something went wrong while initializing Kafka")
+            exit(-1)
 
         # Create the genesis block and add it to the blockchain
         self._initialize_block()
