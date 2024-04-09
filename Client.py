@@ -307,16 +307,26 @@ if test_case is not None:
     # Find how many transactions exist in the blockchain
     chain = node.get_blockchain()
     transactions_in_chain: int = 0
+    blocks_in_chain: int = 0
     for block in chain:
         transactions_in_chain += len(block["transactions"])
+        blocks_in_chain += 1
 
-    print(
-        f"{processed_transactions} transactions processed in {execution_time:.6f} seconds"
-    )
-    print(f"Total {transactions_in_chain} have been added in the blockchain")
+    # Report data
+    throughput: float = float(processed_transactions) / execution_time
+    block_time: float = execution_time / float(len(chain))
 
-    print(len(node._transaction_queue))
-    print(node._validator)
+    report_file = os.path.join("reports", f"node{id}.txt")
+    with open(report_file, "w") as file:
+        file.write(
+            f"{processed_transactions} transactions sent in {execution_time:.6f} seconds\n"
+        )
+        file.write(
+            f"Total {transactions_in_chain} ({blocks_in_chain} blocks) have been added in the blockchain\n"
+        )
+
+        file.write(f"Throughput: {throughput} transactions/second\n")
+        file.write(f"Block Time: {block_time} seconds/block\n")
 
 
 """ Start the Flask application """
