@@ -303,6 +303,7 @@ if test_case is not None:
     # Calculate total execution time
     end_time = time.time()
     execution_time = end_time - start_time
+    time.sleep(5)
 
     # Find how many transactions exist in the blockchain
     chain = node.get_blockchain()
@@ -322,7 +323,7 @@ if test_case is not None:
             f"{processed_transactions} transactions sent in {execution_time:.6f} seconds\n"
         )
         file.write(
-            f"Total {transactions_in_chain} ({blocks_in_chain} blocks) have been added in the blockchain\n"
+            f"Total {transactions_in_chain} transactions ({blocks_in_chain} blocks) have been added in the blockchain\n"
         )
 
         file.write(f"Throughput: {throughput} transactions/second\n")
