@@ -13,6 +13,8 @@ from bcc.Transaction import BCC_MESSAGE_FEE_PER_CHAR, BCC_TRANSFER_FEE, Transact
 
 load_dotenv()
 DEFAULT_PORT = int(os.getenv("DEFAULT_PORT"))
+NUMBER_OF_NODES = int(os.getenv("NUMBER_OF_NODES"))
+BLOCK_CAPACITY = int(os.getenv("BLOCK_CAPACITY"))
 
 app = Flask(__name__, static_url_path="/static")
 app.config["DEBUG"] = False
@@ -313,9 +315,16 @@ if test_case is not None:
         transactions_in_chain += len(block["transactions"])
         blocks_in_chain += 1
 
+    # Remove the transactions/blocks that were created by default (genesis and initialization)
+    initial_transactions = NUMBER_OF_NODES
+    initial_blocks = 2 + ((NUMBER_OF_NODES - 1) // BLOCK_CAPACITY)
+
+    transactions_in_chain -= initial_transactions
+    blocks_in_chain -= initial_blocks
+
     # Report data
-    throughput: float = float(processed_transactions) / execution_time
-    block_time: float = execution_time / float(len(chain))
+    throughput: float = float(transactions_in_chain) / execution_time
+    block_time: float = execution_time / float(blocks_in_chain)
 
     report_file = os.path.join("reports", f"node{id}.txt")
     with open(report_file, "w") as file:
