@@ -139,21 +139,25 @@ def transaction():
 
         # Validate recipient address
         recipient: str = ""
-        if data["recipient"] is None or len(data["recipient"]) == 0:
+        if data["recipient"] is None:
             return jsonify({"message": "Recipient address cannot be empty"}), 400
-        elif data["type"] == "stake" and data["recipient"] != "0":
-            return (
-                jsonify(
-                    {"message": "Recipient address must be 0 for stake transaction"}
-                ),
-                400,
-            )
-        elif data["type"] != "stake" and not any(
-            n["public_key"] == data["recipient"] for n in info["nodes"]
-        ):
-            return jsonify({"message": "Invalid recipient address"}), 400
-
-        recipient = data["recipient"]
+        elif data["type"] == "stake":
+            if data["recipient"] != -1:
+                return (
+                    jsonify(
+                        {"message": "Recipient address must be 0 for stake transaction"}
+                    ),
+                    400,
+                )
+            else:
+                recipient = "0"
+        elif data["type"] != "stake":
+            if not any(n["id"] == data["recipient"] for n in info["nodes"]):
+                return jsonify({"message": "Invalid recipient address"}), 400
+            for n in info["nodes"]:
+                if n["id"] == data["recipient"]:
+                    recipient = n["public_key"]
+                    break
 
         # Validate amount/message (depending on transaction type)
         amount: float = 0.0

@@ -79,11 +79,10 @@ const setAmountFee = () => {
  * @returns {string | null} error message (string) in case of invalid string, otherwise null
  */
 const validateRecipient = () => {
-  const recipient = inputRecipient.value;
-  if (!recipient || recipient.trim().length === 0)
-    return "This field cannot be empty";
+  const recipient = parseInt(inputRecipient.value);
+  if (!recipient || isNaN(recipient)) return "This field cannot be empty";
 
-  const index = publicKeys.findIndex((key) => key === recipient);
+  const index = ids.findIndex((key) => key === recipient);
   if (index == -1) return "Select a valid recipient from the list";
 
   return null;
@@ -267,7 +266,8 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  const recipient = transactionType !== "stake" ? inputRecipient.value : "0";
+  const recipient =
+    transactionType !== "stake" ? parseInt(inputRecipient.value) : -1;
   const amount =
     transactionType !== "message" ? parseFloat(inputAmount.value) : 0.0;
   const message =
@@ -313,11 +313,8 @@ form.addEventListener("submit", async (e) => {
   // Clear the toast message after 3 seconds
   setTimeout(() => {
     toastBootstrap.hide();
-  }, 3000);
-
-  setTimeout(() => {
     location.reload();
-  }, 4000);
+  }, 3000);
 });
 
 /**

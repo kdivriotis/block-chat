@@ -154,7 +154,7 @@
             <select class="form-control px-2 py-1 mt-1" id="inputRecipient">
               {% if nodes|length > 0 %}
               {% for connected_node in nodes %}
-              <option value="{{ connected_node["public_key"] }}">{{connected_node["id"]}}</option>
+              <option value="{{ connected_node["id"] }}">{{connected_node["id"]}}</option>
               {% endfor %}
               {% else %}
               <option value="">No nodes connected</option>
@@ -208,9 +208,9 @@
       const coins = {{ node["coins"] }};
       const bccPerChar = {{ BCC_per_char }};
       const transferFee = {{ transfer_fee }};
-      const publicKeys = [
+      const ids = [
         {% for connected_node in nodes %}
-        "{{ connected_node['public_key'].replace('\n', '\\n') }}"
+        {{ connected_node['id'] }},
         {% endfor %}
       ]
     </script>
