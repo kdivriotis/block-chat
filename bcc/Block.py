@@ -104,7 +104,7 @@ class Block:
         if self._validator != "0":
             return False
         # Genesis block: 1 transaction : 1000*n BCC to bootstrap node from wallet 0
-        if len(self._transactions) != 1:
+        if len(self._transactions) < 1:
             return False
         # Genesis block: 1000*n BCC to bootstrap node from wallet 0 (info of the single existing transaction)
         genesis_transaction = self._transactions[0]
