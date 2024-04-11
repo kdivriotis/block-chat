@@ -32,7 +32,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    command: python3 Client.py -b -t 5
+    command: python3 Client.py -b -t 10
     volumes:
       - .:/app
     ports:
@@ -40,7 +40,7 @@ services:
     stdin_open: true
     tty: true
     env_file:
-      - ./envs/test1.env
+      - ./envs/test2.env
     depends_on:
       kafka:
         condition: service_healthy
@@ -49,7 +49,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    command: sh -c "sleep 10 && python3 Client.py -t 5"
+    command: sh -c "sleep 10 && python3 Client.py -t 10"
     volumes:
       - .:/app
     ports:
@@ -57,7 +57,7 @@ services:
     stdin_open: true
     tty: true
     env_file:
-      - ./envs/test1.env
+      - ./envs/test2.env
     depends_on:
       - node0
   node2:
@@ -65,7 +65,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    command: sh -c "sleep 10 && python3 Client.py -t 5"
+    command: sh -c "sleep 10 && python3 Client.py -t 10"
     volumes:
       - .:/app
     ports:
@@ -73,7 +73,7 @@ services:
     stdin_open: true
     tty: true
     env_file:
-      - ./envs/test1.env
+      - ./envs/test2.env
     depends_on:
       - node0
   node3:
@@ -81,7 +81,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    command: sh -c "sleep 10 && python3 Client.py -t 5"
+    command: sh -c "sleep 10 && python3 Client.py -t 10"
     volumes:
       - .:/app
     ports:
@@ -89,22 +89,86 @@ services:
     stdin_open: true
     tty: true
     env_file:
-      - ./envs/test1.env
+      - ./envs/test2.env
     depends_on:
       - node0
-  node4:
-    container_name: node4
+  node5:
+    container_name: node5
     build: 
       context: .
       dockerfile: Dockerfile
-    command: sh -c "sleep 10 && python3 Client.py -t 5"
+    command: sh -c "sleep 10 && python3 Client.py -t 10"
     volumes:
       - .:/app
     ports:
-      - 5004:5000
+      - 5005:5000
     stdin_open: true
     tty: true
     env_file:
-      - ./envs/test1.env
+      - ./envs/test2.env
+    depends_on:
+      - node0
+  node6:
+    container_name: node6
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "sleep 10 && python3 Client.py -t 10"
+    volumes:
+      - .:/app
+    ports:
+      - 5006:5000
+    stdin_open: true
+    tty: true
+    env_file:
+      - ./envs/test2.env
+    depends_on:
+      - node0
+  node7:
+    container_name: node7
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "sleep 10 && python3 Client.py -t 10"
+    volumes:
+      - .:/app
+    ports:
+      - 5007:5000
+    stdin_open: true
+    tty: true
+    env_file:
+      - ./envs/test2.env
+    depends_on:
+      - node0
+  node8:
+    container_name: node8
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "sleep 10 && python3 Client.py -t 10"
+    volumes:
+      - .:/app
+    ports:
+      - 5008:5000
+    stdin_open: true
+    tty: true
+    env_file:
+      - ./envs/test2.env
+    depends_on:
+      - node0
+  node9:
+    container_name: node9
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "sleep 10 && python3 Client.py -t 10"
+    volumes:
+      - .:/app
+    ports:
+      - 5009:5000
+    stdin_open: true
+    tty: true
+    env_file:
+      - ./envs/test2.env
     depends_on:
       - node0
