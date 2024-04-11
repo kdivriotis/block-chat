@@ -91,18 +91,6 @@ class Node:
         broker_port = os.getenv("BROKER_PORT")
         self._kafka_broker = f"{broker_ip}:{broker_port}"
 
-        # # Create the topics needed for Kafka broker
-        # try:
-        #     initialize_broker(server=self._kafka_broker, topics=TOPICS)
-        # except Exception:
-        #     print("Something went wrong while initializing Kafka")
-        #     exit(-1)
-
-        # # Start the listener thread
-        # self._listener = threading.Thread(target=self._receive_message)
-        # self._listener._stop_event = threading.Event()
-        # self._listener.start()
-
     def _connect_to_broker(self):
         """
         Send connection message to request ID from bootstrap
