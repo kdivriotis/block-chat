@@ -80,7 +80,7 @@ const setAmountFee = () => {
  */
 const validateRecipient = () => {
   const recipient = parseInt(inputRecipient.value);
-  if (!recipient || isNaN(recipient)) return "This field cannot be empty";
+  if (isNaN(recipient)) return "This field cannot be empty";
 
   const index = ids.findIndex((key) => key === recipient);
   if (index == -1) return "Select a valid recipient from the list";
