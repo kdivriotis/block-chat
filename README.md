@@ -85,12 +85,12 @@ _NOTE:_ Only message transactions are supported
 
 ## Run with Docker Containers
 
-Three different Docker configurations (docker-compose.yaml) have been predefined, in order to run tests
+Four different Docker configurations (docker-compose.yaml) have been predefined, in order to run tests
 with various configurations and number on nodes in the system.
 
-The three different docker configurations are saved in files **docker-compose.1.yaml**, **docker-compose.2.yaml** and
+The three different docker configurations are saved in files **docker-compose.0.yaml**, **docker-compose.1.yaml**, **docker-compose.2.yaml** and
 **docker-compose.3.yaml**.  
-Tests 1, 3 use the env file _./envs/test1.env_ and test 2 uses the env file _./envs/test2.env_.  
+Tests 0, 1, 3 use the env file _./envs/test1.env_ and test 2 uses the env file _./envs/test2.env_.  
 
 In order to use, copy the contents of the desired test in the **docker-compose.yaml** file, and
 then run by using the command `sudo docker-compose up`.
